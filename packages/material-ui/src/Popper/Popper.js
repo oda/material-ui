@@ -77,9 +77,24 @@ const Popper = React.forwardRef(function Popper(props, ref) {
    */
   const [placement, setPlacement] = React.useState(rtlPlacement);
 
+  let timerId;
+
+  let lastExecTime = 0;
+
   React.useEffect(() => {
     if (popperRef.current) {
-      popperRef.current.update();
+      const execute = () => {
+        lastExecTime = performance.now();
+        popperRef.current.update();
+        lastExecTime = performance.now();
+      }
+      clearTimeout(timerId);
+      let elapsedTime = performance.now() - lastExecTime;
+      if (elapsedTime > 100) {
+        execute()
+      } else {
+        timerId = setTimeout(execute, 100 - elapsedTime);
+      }
     }
   });
 
