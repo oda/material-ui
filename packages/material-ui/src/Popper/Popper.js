@@ -79,21 +79,25 @@ const Popper = React.forwardRef(function Popper(props, ref) {
 
   let timerId;
 
+  let running = false;
+
   let lastExecTime = 0;
 
   React.useEffect(() => {
     if (popperRef.current) {
       const execute = () => {
         lastExecTime = performance.now();
+        running = true;
         popperRef.current.update();
+        running = false;
         lastExecTime = performance.now();
       }
       clearTimeout(timerId);
       let elapsedTime = performance.now() - lastExecTime;
-      if (elapsedTime > 100) {
+      if (elapsedTime > 100 && !running) {
         execute()
       } else {
-        timerId = setTimeout(execute, 100 - elapsedTime);
+        timerId = setTimeout(execute, !running ? 100 - elapsedTime : 50);
       }
     }
   });
